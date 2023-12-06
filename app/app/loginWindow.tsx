@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { any } from "zod";
 
 export default function LoginWindow(
   { setUpProfile }: {
@@ -11,7 +12,7 @@ export default function LoginWindow(
   /* 
     TODO #1: Add a state variable to store the current error message
   */
-
+  const [errorMessage, setErrorMessage] = useState<string|null>(null);
   /*
     This function is called to set up the profile of the new user. It is called
     when a user submits the login form. It takes a FormData object as an argument,
@@ -22,7 +23,7 @@ export default function LoginWindow(
     /* 
       TODO #3: Set the error state to an empty string
     */
-
+    setErrorMessage("");
     /* 
       TODO #4: Set up a try catch block to call the setUpProfile() function and set the error state
       if an error is thrown
@@ -31,6 +32,12 @@ export default function LoginWindow(
         - Use the setUpProfile() function to set up the user's profile and log them in
         - In the catch block, set the error state to the error message (error.message)
     */
+    try {
+      await setUpProfile(form)
+    } catch (error:any) {
+        console.log("error is "+error.message)
+        setErrorMessage(error.message);
+    }
   }
 
   return (
@@ -65,7 +72,9 @@ export default function LoginWindow(
           <p className="text-red-500">
             {/* 
               TODO #2: Display the error message if it is not an empty string using the error state variable
-            */}
+            */
+              errorMessage
+            }
             {
               "PLACEHOLDER"
             }

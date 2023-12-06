@@ -9,6 +9,8 @@ import { newUserSchema } from '@/lib/zod';
 import { dropUser, getNumberOfUsers, storeUser } from '@/lib/storage';
 import { createProfile, newPrivateKey } from '@/lib/contract';
 import LoginWindow from './loginWindow';
+import { Server, User } from 'lucide-react';
+import { User as newUser } from '@/lib/types';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -57,7 +59,7 @@ export default async function RootLayout({
     /*
       TODO #1: Indicate that this function is a server function by adding 'use server';
     */
-
+    'use server'
     /*
       TODO #2: Create the new User object with a username, name, and privateKey
     
@@ -65,13 +67,22 @@ export default async function RootLayout({
         - 
         - Use the newPrivateKey() function to generate a new private key for the user
     */
-
+    const privatekey = newPrivateKey();
+    const newUser:  newUser = {
+      username: form.values.name,
+      name : form.values.name,
+      privateKey: privatekey,
+      followers : 0,
+      following:0
+    };
+   
+    
     /* 
       TODO #3: Store the user in the local account cache
 
       HINT: Use the storeUser() function to store the user
     */
-
+    await storeUser(newUser);
     /* 
       TODO #4: Set up a try catch block to create the user's profile and log them in if successful.
 
@@ -83,6 +94,14 @@ export default async function RootLayout({
           from the local account cache. Then, throw the error to be caught by the catch block in
           the loginWindow.tsx file.
     */
+   try{
+      await createProfile(newUser);
+      await login(newUser);
+   }catch(error:any){
+      await dropUser(newUser);
+      // return error;
+      throw new Error(error.message);
+    }
   }
 
   if (!me) {
